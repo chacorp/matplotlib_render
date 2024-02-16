@@ -88,7 +88,7 @@ def calc_norm_fv(fv):
     norm = norm / (np.linalg.norm(norm, axis=-1)[ :, np.newaxis] + 1e-12)
     return norm
     
-def plot_image_array(Vs, Fs, rot_list=None, size=6, norm=False, mode='mesh'): 
+def plot_image_array(Vs, Fs, rot_list=None, size=6, norm=False, mode='mesh', linewidth=1, linestyles='solid'): 
     num_meshes = len(Vs)
     fig = plt.figure(figsize=(size * num_meshes, size))  # Adjust figure size based on the number of meshes
     
@@ -124,7 +124,7 @@ def plot_image_array(Vs, Fs, rot_list=None, size=6, norm=False, mode='mesh'):
             NI = np.argwhere(C[:,2] > 0).squeeze()
             T, C = T[NI, :], C[NI, :]
             C = np.clip(C, 0, 1) if False else C * 0.5+ 0.5
-            collection = PolyCollection(T, closed=False, linewidth=0.23, facecolor=C, edgecolor=C, linestyles=':')
+            collection = PolyCollection(T, closed=False, linewidth=linewidth, facecolor=C, edgecolor=C, linestyles=linestyles)
         elif mode=='shade':
             C = calc_norm_fv(V[F]) @ model[:3,:3].T
             
@@ -136,12 +136,12 @@ def plot_image_array(Vs, Fs, rot_list=None, size=6, norm=False, mode='mesh'):
             C = (C @ np.array([0,0,1]))[:,np.newaxis].repeat(3,1)
             print(C.shape)
             C = np.clip(C, 0, 1)
-            collection = PolyCollection(T, closed=False, linewidth=0, facecolor=C, edgecolor=C)
+            collection = PolyCollection(T, closed=False, linewidth=linewidth, facecolor=C, edgecolor=C, linestyles=linestyles)
         else:
             C = plt.get_cmap("gray")(Z)
             I = np.argsort(Z)
             T, C = T[I, :], C[I, :]
-            collection = PolyCollection(T, closed=False, linewidth=0.23, facecolor=C, edgecolor='black')
+            collection = PolyCollection(T, closed=False, linewidth=linewidth, facecolor=C, edgecolor='black')
         
         ax.add_collection(collection)
     plt.show()
