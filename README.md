@@ -3,6 +3,12 @@ render 3D mesh with matplotlib library
 
 Reference: https://matplotlib.org/matplotblog/posts/custom-3d-engine/
 
+# Requirements
+```
+pip install -r requirements.txt
+```
+
+
 # How to use
 ```
 from matplotlib_render import *
