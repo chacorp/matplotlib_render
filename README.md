@@ -5,7 +5,7 @@ Reference: https://matplotlib.org/matplotblog/posts/custom-3d-engine/
 
 # How to use
 ```
-from matplorlib_render import *
+from matplotlib_render import *
 import trimesh
 mesh = trimesh.load('your_mesh_file.obj')
 
