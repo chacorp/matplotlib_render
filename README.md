@@ -10,7 +10,7 @@ pip install -r requirements.txt
 
 
 # How to use
-```
+```python
 from matplotlib_render import *
 import trimesh
 mesh = trimesh.load('your_mesh_file.obj')
