@@ -1,9 +1,9 @@
-# Matplotlib_render
+# Matplotlib render
 render 3D mesh with matplotlib library
 
 Reference: https://matplotlib.org/matplotblog/posts/custom-3d-engine/
 
-# use
+# How to use
 ```
 import trimesh
 mesh = trimesh.load('your_mesh_file.obj')
