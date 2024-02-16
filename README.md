@@ -5,7 +5,6 @@ Reference: https://matplotlib.org/matplotblog/posts/custom-3d-engine/
 
 # use
 ```
-import torch
 import trimesh
 mesh = trimesh.load('mesh.obj')
 
