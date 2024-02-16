@@ -22,4 +22,4 @@ plot_image_array(v_list, f_list, rot_list=rot_list, size=SIZE)
 plot_image_array(v_list, f_list, rot_list=rot_list, size=SIZE, mode='normal')
 plot_image_array(v_list, f_list, rot_list=rot_list, size=SIZE, mode='shade')
 ```
-![demo](demo.png){: width="50%" height="50%"}
+<img src="https://github.com/chacorp/matplotlib_render/blob/main/demo.png" width="256" height="740" />
