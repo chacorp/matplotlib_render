@@ -146,6 +146,98 @@ def plot_image_array(Vs, Fs, rot_list=None, size=6, norm=False, mode='mesh', lin
         ax.add_collection(collection)
     plt.show()
     
+def render_video(basedir="tmp", # mesh obj directory
+                 savedir="tmp", # save path 
+                 savename="tmp", # video name
+                 size=3, # figure size
+                 fps=30,
+                 xrot=0,
+                 yrot=0,
+                 zrot=0,
+                 light_dir=np.array([0,0,1]),
+                 mode='mesh', 
+                 linewidth=1,
+                ):
+    # make dirs
+    os.makedirs(savedir, exist_ok=True)
+    
+    ## visualize
+    basename = basedir
+    
+    meshes = sorted(glob.glob(os.path.join(basename, '*.obj')))
+    tmp = trimesh.load(meshes[0])
+    mesh_face = tmp.faces
+    
+    mesh_vtxs = []
+    for mesh in meshes:
+        tmp = trimesh.load(mesh)
+        mesh_vtxs.append(tmp.vertices)
+    mesh_vtxs = np.array(mesh_vtxs)
+    
+    num_meshes = len(mesh_vtxs)
+    
+    ## visualize
+    fig = plt.figure(figsize=(size, size))
+    _r = figsize[0] / figsize[1]
+    fig_xlim = [-_r, _r]
+    fig_ylim = [-1, +1]
+    ax = fig.add_axes([0,0,1,1], xlim=fig_xlim, ylim=fig_ylim, aspect=1, frameon=False)
+
+    ## MVP
+    model = translate(0, 0, -2.5) @ yrotate(yrot) @ xrotate(xrot) @ zrotate(zrot)
+    proj  = perspective(25, 1, 1, 100)
+    MVP   = proj @ model # view is identity
+
+    def render_mesh(ax, V, MVP, F):        
+        # quad to triangle    
+        VF_tri = transform_vertices(V, MVP, F)
+
+        T = VF_tri[:, :, :2]
+        Z = -VF_tri[:, :, 2].mean(axis=1)
+        zmin, zmax = Z.min(), Z.max()
+        Z = (Z - zmin) / (zmax - zmin)
+        
+        if mode=='shade':
+            C = calc_norm_fv(V[F]) @ model[:3,:3].T
+            I = np.argsort(Z) # -----------------------> depth sorting
+            T, C = T[I, :], C[I, :]
+
+            NI = np.argwhere(C[:,2] > 0).squeeze() # --> culling w/ normal
+            T, C = T[NI, :], C[NI, :]
+            
+            C = np.clip((C @ light_dir), 0, 1) # ------> cliping range 0 - 1
+            C = C[:,np.newaxis].repeat(3, axis=-1)
+            collection = PolyCollection(T, closed=False, linewidth=linewidth, facecolor=C, edgecolor=C)
+        else:
+            C = plt.get_cmap("gray")(Z)
+            I = np.argsort(Z)
+            T, C = T[I, :], C[I, :]
+            
+            NI = np.argwhere(C[:,2] > 0).squeeze()
+            T, C = T[NI, :], C[NI, :]
+            collection = PolyCollection(T, closed=False, linewidth=0.23, facecolor=C, edgecolor="black")
+        ax.add_collection(collection)
+    
+    def update(V):
+        # Cleanup previous collections
+        for coll in ax.collections:
+            coll.remove()
+
+        # Render meshes for all views
+        render_mesh(ax, V, MVP, mesh_face)
+        
+        return ax.collections
+    
+    #plt.tight_layout()
+    anim = FuncAnimation(fig, update, frames=mesh_vtxs, blit=True)
+    
+    bar = tqdm(total=num_meshes, desc="rendering")
+    anim.save(
+        f'{savedir}/{savename}.mp4', 
+        fps=fps,
+        progress_callback=lambda i, n: bar.update(1)
+    )
+    
 def compute_average_distance(points):
     """
     Compute the average distance of each point from the origin in a set of points.
